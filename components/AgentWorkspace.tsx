@@ -30,8 +30,8 @@ const AgentWorkspace: React.FC<AgentWorkspaceProps> = ({ agent, onBack }) => {
     }, [agent]);
 
     return (
-        <div className="p-8 animate-fade-in h-full flex flex-col">
-            <div className="flex items-center gap-4 mb-8">
+        <div className="p-4 lg:p-8 animate-fade-in h-full flex flex-col">
+            <div className="hidden lg:flex items-center gap-4 mb-8">
                 <button onClick={onBack} className="flex items-center gap-2 text-orange-400 hover:text-orange-300 font-semibold">
                     <ArrowLeftIcon />
                     Voltar

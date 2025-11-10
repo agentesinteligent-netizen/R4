@@ -43,8 +43,8 @@ const DashboardView: React.FC<DashboardViewProps> = ({ isAdmin, onNavigate, last
     const courseToShow = lastViewedCourse || defaultCourse;
     
     return (
-        <div className="p-8 animate-fade-in h-full overflow-y-auto scrollbar-thin scrollbar-thumb-orange-700 scrollbar-track-neutral-950">
-            <h1 className="text-4xl font-bold text-white">
+        <div className="p-4 sm:p-8 animate-fade-in h-full overflow-y-auto scrollbar-thin scrollbar-thumb-orange-700 scrollbar-track-neutral-950">
+            <h1 className="text-3xl sm:text-4xl font-bold text-white">
                 Bem-vindo de volta, <span className="text-orange-400">{isAdmin ? 'Admin' : 'Usuário'}!</span>
             </h1>
             <p className="text-lg text-neutral-400 mt-2">Aqui está um resumo da sua atividade na plataforma.</p>

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import LandingPage from './components/LandingPage';
-import AuthPage from './components/AuthPage';
 import PlatformPage, { ContentSection, initialContentData } from './components/PlatformPage';
 import AdminPage from './components/AdminPage';
+import AuthPage from './components/AuthPage';
 
-type View = 'landing' | 'auth' | 'platform' | 'admin';
+type View = 'landing' | 'platform' | 'admin' | 'auth';
 
 // Lista de e-mails de administradores
-const ADMIN_EMAILS = ['admin@r4.com'];
+const ADMIN_EMAILS = ['admin@r4.com', 'umunsaad090@gmail.com'];
 const CONTENT_STORAGE_KEY = 'platformContentData';
 const PROFILE_PICTURE_STORAGE_KEY = 'platformProfilePicture';
 const LAST_VIEWED_COURSE_ID_KEY = 'lastViewedCourseId';
@@ -16,6 +16,7 @@ const LAST_USED_AGENT_ID_KEY = 'lastUsedAgentId';
 const App: React.FC = () => {
   const [view, setView] = useState<View>('landing');
   const [isFadingOut, setIsFadingOut] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
   const [contentData, setContentData] = useState<ContentSection[]>(() => {
@@ -84,29 +85,33 @@ const App: React.FC = () => {
 
   // Salva o último curso visto no localStorage
   useEffect(() => {
-    try {
-      if (lastViewedCourseId) {
-        localStorage.setItem(LAST_VIEWED_COURSE_ID_KEY, lastViewedCourseId);
-      } else {
-        localStorage.removeItem(LAST_VIEWED_COURSE_ID_KEY);
-      }
-    } catch (error) {
-      console.error("Erro ao salvar último curso visto no localStorage:", error);
+    if (isLoggedIn) {
+        try {
+          if (lastViewedCourseId) {
+            localStorage.setItem(LAST_VIEWED_COURSE_ID_KEY, lastViewedCourseId);
+          } else {
+            localStorage.removeItem(LAST_VIEWED_COURSE_ID_KEY);
+          }
+        } catch (error) {
+          console.error("Erro ao salvar último curso visto no localStorage:", error);
+        }
     }
-  }, [lastViewedCourseId]);
+  }, [lastViewedCourseId, isLoggedIn]);
 
   // Salva o último agente usado no localStorage
   useEffect(() => {
-    try {
-      if (lastUsedAgentId) {
-        localStorage.setItem(LAST_USED_AGENT_ID_KEY, lastUsedAgentId);
-      } else {
-        localStorage.removeItem(LAST_USED_AGENT_ID_KEY);
-      }
-    } catch (error) {
-      console.error("Erro ao salvar último agente usado no localStorage:", error);
+    if (isLoggedIn) {
+        try {
+          if (lastUsedAgentId) {
+            localStorage.setItem(LAST_USED_AGENT_ID_KEY, lastUsedAgentId);
+          } else {
+            localStorage.removeItem(LAST_USED_AGENT_ID_KEY);
+          }
+        } catch (error) {
+          console.error("Erro ao salvar último agente usado no localStorage:", error);
+        }
     }
-  }, [lastUsedAgentId]);
+  }, [lastUsedAgentId, isLoggedIn]);
 
 
   // Ouve as alterações no localStorage de outras abas para sincronização em tempo real
@@ -148,16 +153,16 @@ const App: React.FC = () => {
   const handleLoginSuccess = (email: string) => {
     const isAdminUser = ADMIN_EMAILS.includes(email.toLowerCase());
     setIsAdmin(isAdminUser);
+    setIsLoggedIn(true);
     navigateTo('platform');
   };
 
   const handleLogout = () => {
     setIsAdmin(false);
+    setIsLoggedIn(false);
     navigateTo('landing');
   };
   
-  const navigateToAuth = () => navigateTo('auth');
-  const navigateToLanding = () => navigateTo('landing');
   const navigateToAdmin = () => navigateTo('admin');
   const navigateToPlatform = () => navigateTo('platform');
 
@@ -166,11 +171,12 @@ const App: React.FC = () => {
   const renderView = () => {
     switch(view) {
         case 'landing':
-            return <LandingPage onNavigate={navigateToAuth} />;
+            return <LandingPage onNavigate={() => navigateTo('auth')} />;
         case 'auth':
-            return <AuthPage onNavigateBack={navigateToLanding} onLoginSuccess={handleLoginSuccess} />;
+            return <AuthPage onNavigateBack={() => navigateTo('landing')} onLoginSuccess={handleLoginSuccess} />;
         case 'platform':
             return <PlatformPage 
+                      isLoggedIn={isLoggedIn}
                       isAdmin={isAdmin} 
                       onNavigateToAdmin={navigateToAdmin} 
                       onLogout={handleLogout}
@@ -184,9 +190,13 @@ const App: React.FC = () => {
                       setLastUsedAgentId={setLastUsedAgentId}
                     />;
         case 'admin':
-            return <AdminPage onExitAdmin={navigateToPlatform} />;
+            return <AdminPage 
+                      onExitAdmin={navigateToPlatform} 
+                      contentData={contentData}
+                      setContentData={setContentData}
+                    />;
         default:
-            return <LandingPage onNavigate={navigateToAuth} />;
+            return <LandingPage onNavigate={() => navigateTo('auth')} />;
     }
   }
 
